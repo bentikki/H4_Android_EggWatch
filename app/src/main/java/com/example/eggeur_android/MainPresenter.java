@@ -3,6 +3,9 @@ package com.example.eggeur_android;
 import android.os.CountDownTimer;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainPresenter {
 
     // Implements MVP pattern - Using MainActivity as View
@@ -23,92 +26,57 @@ public class MainPresenter {
         TimerOption3
     }
 
-    private CountDownTimer countDownTimer;
-    private long timeLeft;
-    private boolean timerIsRunning;
+
+    private EggTimer _eggTimer;
+
+    // Set Command lists
+    private List<ICommand> onTickCommands = new ArrayList<>();
+    private List<ICommand> onFinishedCommands = new ArrayList<>();
+
 
     public MainPresenter(View view){
         this.view = view;
-        SetDefaultTime();
+
+        // Using Command Pattern - Utilizing ICommand interface
+
+        // Set on tick commands
+        onTickCommands.add(new UpdateCountDownCommand(this));
+
+        // Set on finished commands
+        onFinishedCommands.add(new ShowSplashMessageCommand(this));
+        onFinishedCommands.add(new ResetStartButtonCommand(this));
     }
 
     // Selects timer
     public void TimerTypeSelected(TimerOption optionSelected){
 
          // Sets timeLeft value in milliseconds based on TimerOption argument
-        this.timeLeft = GetTimeFromTimerOption(optionSelected);
+        long countdownTime = GetTimeFromTimerOption(optionSelected);
+
+        // Instanziates EggTimer object.
+        // Takes a list of ICommand to run on Tick and Finished, takes countdown time as well
+        _eggTimer = new EggTimer(onTickCommands, onFinishedCommands, countdownTime);
+
+        UpdateTimerText(countdownTime);
 
         // Sets button active on View
         view.SetButtonStage(true);
-
-        // Stops current timer
-        StopTimer();
-
-        UpdateTimerText(timeLeft);
         view.SetButtonText("Start timer");
     }
 
+
     // Runs when start timer button is clicked
     public void BeginTimer(){
-        if(timerIsRunning){
-            StopTimer();
-        }
 
-        StartTimingPeriod(timeLeft);
+        _eggTimer.BeginTimer();
         view.SetButtonStage(false);
         view.SetButtonText("Timer kører");
-    }
-
-    // Stops current timer
-    public void StopTimer(){
-        if(timerIsRunning){
-            countDownTimer.cancel();
-            timerIsRunning = false;
-        }
-    }
-
-    // Starts internal timer functionality
-    private void StartTimingPeriod(long setTimeLeft){
-
-        // Starts countdown timer
-        countDownTimer = new CountDownTimer(setTimeLeft, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                // Execute per tick - per second.
-                timeLeft = millisUntilFinished;
-                OntimerTick();
-            }
-
-            @Override
-            public void onFinish() {
-                OnTimerFinished(); // Executes on finished.
-            }
-        };
-        timerIsRunning = true;
-        countDownTimer.start();
-    }
-
-    // Runs every tick on timer
-    private void OntimerTick(){
-        UpdateTimerText(timeLeft);
-    }
-
-    // Runs when timer is finished
-    private void OnTimerFinished(){
-        StopTimer();
-        SetDefaultTime();
-
-        view.SetButtonStage(false);
-        view.SetButtonText("Vælg type");
-        view.TimerFinished();
     }
 
     private void UpdateTimerText(long currentTime){
         String timeLeftFormatted = FormatTimerText(currentTime); // Gets time formatted mm:ss
         view.SetTimerText(timeLeftFormatted); // Set timerText TextView object text on view
     }
-
-
 
     // Takes currentTime int as time in milliseconds - Returns formatted string as mm:ss
     private String FormatTimerText(long currentTime){
@@ -146,7 +114,50 @@ public class MainPresenter {
         return timeSelectedInMillis;
     }
 
-    private void SetDefaultTime(){
-        this.timeLeft = GetTimeFromTimerOption(TimerOption.TimerOption1); // Sets standard time
+
+    // Command pattern commands
+    public class UpdateCountDownCommand implements ICommand {
+
+        MainPresenter _presenter;
+
+        public UpdateCountDownCommand(MainPresenter presenter){
+            _presenter = presenter;
+        }
+
+        @Override
+        public void Execute() {
+            long currentTime = _presenter._eggTimer.GetCurrentTime();
+            _presenter.UpdateTimerText(currentTime);
+        }
     }
+
+    public class ShowSplashMessageCommand implements ICommand {
+
+        MainPresenter _presenter;
+
+        public ShowSplashMessageCommand(MainPresenter presenter){
+            _presenter = presenter;
+        }
+
+        @Override
+        public void Execute() {
+            _presenter.view.TimerFinished();
+        }
+    }
+
+    public class ResetStartButtonCommand implements ICommand {
+
+        MainPresenter _presenter;
+
+        public ResetStartButtonCommand(MainPresenter presenter){
+            _presenter = presenter;
+        }
+
+        @Override
+        public void Execute() {
+            _presenter.view.SetButtonStage(false);
+            _presenter.view.SetButtonText("Vælg type");
+        }
+    }
+
 }
