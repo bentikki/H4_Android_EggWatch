@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">EggeUr_Android</string>
+    <string name="app_title">Ægge ur</string>
+    <string name="button_initial">Start timer</string>
 </resources>

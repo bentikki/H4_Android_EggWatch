@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements MainPresenter.Vie
 
         // Binds objects to view
         this.timerCountdownTextView = this.findViewById(R.id.timerCountdownTextView);
+        this.timerCountdownTextView.setText("00:00");
         this.timerSelect1 = this.findViewById(R.id.timerSelect1);
         this.timerSelect2 = this.findViewById(R.id.timerSelect2);
         this.timerSelect3 = this.findViewById(R.id.timerSelect3);
