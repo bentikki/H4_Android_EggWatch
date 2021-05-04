@@ -6,6 +6,17 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Presenter for controlling timers
+ * Includes View Contract for use in Activities.
+ *
+ * This presenter allows timer countdown options, and allows commands to be run on Timer Tick and Finished.
+ * Utilizing Command pattern with ICommand interface.
+ *
+ * @author BTO
+ * @version 1.0
+ * @since 1.0
+ */
 public class MainPresenter {
 
     // Implements MVP pattern - Using MainActivity as View
@@ -33,7 +44,13 @@ public class MainPresenter {
     private List<ICommand> onTickCommands = new ArrayList<>();
     private List<ICommand> onFinishedCommands = new ArrayList<>();
 
-
+    /**
+     * Constructor for Presenter
+     * Takes view which implements View contract.
+     *
+     * @param view A view implementing View contract interface
+     *
+     */
     public MainPresenter(View view){
         this.view = view;
 
@@ -47,7 +64,13 @@ public class MainPresenter {
         onFinishedCommands.add(new ResetStartButtonCommand(this));
     }
 
-    // Selects timer
+    /**
+     * Public - Selects the allowed timer option from TimerOption Enum.
+     * Starts a new EffTimer object, and allows the start button to be active.
+     *
+     * @param optionSelected TimerOption selected - which holds countdown time.
+     *
+     */
     public void TimerTypeSelected(TimerOption optionSelected){
 
          // Sets timeLeft value in milliseconds based on TimerOption argument
@@ -65,20 +88,39 @@ public class MainPresenter {
     }
 
 
-    // Runs when start timer button is clicked
+    /**
+     * Public - Begins the countdown timer.
+     * Deactivates start button and alters text to relect this.
+     *
+     */
     public void BeginTimer(){
+        if(this._eggTimer == null){
+            throw new NullPointerException();
+        }
 
         _eggTimer.BeginTimer();
         view.SetButtonStage(false);
         view.SetButtonText("Timer kører");
     }
 
+    /**
+     * Internal - Updates the timer text on View.
+     *
+     * @param currentTime takes the current time, used to update the view.
+     */
     private void UpdateTimerText(long currentTime){
         String timeLeftFormatted = FormatTimerText(currentTime); // Gets time formatted mm:ss
         view.SetTimerText(timeLeftFormatted); // Set timerText TextView object text on view
     }
 
-    // Takes currentTime int as time in milliseconds - Returns formatted string as mm:ss
+    /**
+     * Internal - Takes currentTime long as time in milliseconds.
+     * Returns formatted string as mm:ss
+     *
+     * @param currentTime Takes Long param to be formatted.
+     *
+     * @return String formatted as mm:ss
+     */
     private String FormatTimerText(long currentTime){
         long minutesLeft = currentTime / 60000; // Gets minutes
         long secondsLeft = currentTime % 60000 / 1000; // Gets seconds
@@ -92,6 +134,13 @@ public class MainPresenter {
         return timeLeftFormatted;
     }
 
+    /**
+     * Internal - Takes TimerOption to be converted to Long value.
+     *
+     * @param optionSelected Takes Long param to be formatted.
+     *
+     * @return time as Long in ms
+     */
     private long GetTimeFromTimerOption(TimerOption optionSelected){
 
         long timeSelectedInMillis = 0;
@@ -115,7 +164,10 @@ public class MainPresenter {
     }
 
 
-    // Command pattern commands
+    /**
+     * ICommand to be run on timer Tick or Finished.
+     * UpdateCountDownCommand updates countdown on view.
+     */
     public class UpdateCountDownCommand implements ICommand {
 
         MainPresenter _presenter;
@@ -131,6 +183,10 @@ public class MainPresenter {
         }
     }
 
+    /**
+     * ICommand to be run on timer Tick or Finished.
+     * ShowSplashMessageCommand shows splah message on view.
+     */
     public class ShowSplashMessageCommand implements ICommand {
 
         MainPresenter _presenter;
@@ -145,6 +201,10 @@ public class MainPresenter {
         }
     }
 
+    /**
+     * ICommand to be run on timer Tick or Finished.
+     * ResetStartButtonCommand resets the start button.
+     */
     public class ResetStartButtonCommand implements ICommand {
 
         MainPresenter _presenter;
