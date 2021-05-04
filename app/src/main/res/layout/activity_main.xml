@@ -83,10 +83,11 @@
         android:layout_height="59dp"
         android:layout_marginBottom="80dp"
         android:text="@string/button_initial"
+        android:background="@color/EggYellow"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/timerCountdownText" />
+        app:layout_constraintTop_toBottomOf="@+id/timerCountdownTextView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

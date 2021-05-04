@@ -11,7 +11,7 @@ import java.util.List;
  * @version 1.0
  * @since 1.0
  */
-public class EggTimer {
+public class EggTimer extends Thread{
 
     // Using command pattern - List of ICommands
     // Commands to execute on timer finished and ticks
@@ -80,6 +80,9 @@ public class EggTimer {
      * @param setTimeLeft Time to count down from.
      */
     private void StartTimingPeriod(long setTimeLeft){
+
+
+
 
         // Starts countdown timer
         _countDownTimer = new CountDownTimer(setTimeLeft, 1000) {
